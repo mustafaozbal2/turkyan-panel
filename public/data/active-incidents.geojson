@@ -1,0 +1,30 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "id": 1, "status": "Müdahale Ediliyor", "area": "52 Hektar", "name": "Antalya/Manavgat Yangını", "region": "Akdeniz", "dispatched_vehicles": 25 },
+      "geometry": { "type": "Point", "coordinates": [ 31.54, 36.78 ] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": 2, "status": "Kontrol Altında", "area": "15 Hektar", "name": "Muğla/Fethiye Yangını", "region": "Ege", "dispatched_vehicles": 8 },
+      "geometry": { "type": "Point", "coordinates": [ 29.11, 36.62 ] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "id": 3, "status": "Yeni Başladı", "area": "2 Hektar", "name": "İzmir/Bergama Yangını", "region": "Ege", "dispatched_vehicles": 4 },
+      "geometry": { "type": "Point", "coordinates": [ 27.18, 39.12 ] }
+    },
+    {
+        "type": "Feature",
+        "properties": { "id": 4, "status": "Tehlikeli", "area": "110 Hektar", "name": "Çanakkale/Eceabat Yangını", "region": "Marmara", "dispatched_vehicles": 42 },
+        "geometry": { "type": "Point", "coordinates": [ 26.35, 40.18 ] }
+    },
+    {
+        "type": "Feature",
+        "properties": { "id": 5, "status": "Müdahale Ediliyor", "area": "35 Hektar", "name": "Kastamonu/Taşköprü Yangını", "region": "Karadeniz", "dispatched_vehicles": 18 },
+        "geometry": { "type": "Point", "coordinates": [ 34.21, 41.51 ] }
+    }
+  ]
+}
