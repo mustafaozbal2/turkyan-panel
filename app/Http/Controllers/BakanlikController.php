@@ -2,32 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Incident; // Incident modelini kullanacağız
+use App\Models\Incident;
+use App\Models\FireStation;
+use App\Models\WaterSource;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // İstatistikler için DB sınıfını kullanacağız
+use Illuminate\Support\Facades\DB;
 
 class BakanlikController extends Controller
 {
     public function index()
     {
-        // Veritabanından tüm olayları çekiyoruz
         $allIncidents = Incident::latest()->get();
+        $fireStations = FireStation::all(); // İtfaiyeleri veritabanından çek
+        $waterSources = WaterSource::all(); // Su kaynaklarını veritabanından çek
 
-        // Ulusal Durum Raporu (KPI) için istatistikleri hesaplıyoruz
         $stats = [
             'active_incidents' => $allIncidents->count(),
-            'dispatched_vehicles' => $allIncidents->sum('response_time_minutes'), // Örnek olarak müdahale süresini topluyoruz, bu daha sonra araç sayısıyla değiştirilebilir.
+            'dispatched_vehicles' => $allIncidents->sum('response_time_minutes'),
             'high_risk' => $allIncidents->whereIn('severity', ['Kritik', 'Yüksek'])->count(),
         ];
-
-        // Olayları bölgelerine göre grupluyoruz
+        
         $incidentsByRegion = $allIncidents->groupBy('location');
 
-        // View'a tüm bu işlenmiş verileri gönderiyoruz
+        // View'a tüm bu dinamik verileri gönderiyoruz
         return view('bakanlik', [
             'stats' => $stats,
             'incidentsByRegion' => $incidentsByRegion,
-            'allIncidents' => $allIncidents
+            'allIncidents' => $allIncidents,
+            'fireStations' => $fireStations,
+            'waterSources' => $waterSources,
         ]);
     }
 }

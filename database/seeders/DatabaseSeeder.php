@@ -25,7 +25,10 @@ class DatabaseSeeder extends Seeder
               AlertSeeder::class, // Bu satırı ekleyin
         IncidentSeeder::class, // Bu satırı ekleyin
         NewsArticleSeeder::class, // Bu satırı ekleyin
-
+ TeamMemberSeeder::class,    // YENİ EKLENDİ
+        ProjectValueSeeder::class,  // YENİ EKLENDİ
+          FireStationSeeder::class, // YENİ EKLENDİ
+        WaterSourceSeeder::class, // YENİ EKLENDİ
     ]);
     }
 }

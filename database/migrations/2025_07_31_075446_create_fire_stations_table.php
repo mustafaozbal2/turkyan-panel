@@ -11,15 +11,13 @@ return new class extends Migration
      */
   public function up(): void
 {
-    Schema::create('incidents', function (Blueprint $table) {
+    Schema::create('fire_stations', function (Blueprint $table) {
         $table->id();
+        $table->foreignId('user_id')->nullable()->constrained('users'); // İtfaiye kullanıcısına bağlamak için
         $table->string('name');
-        $table->string('location');
-        $table->string('severity');
-        $table->decimal('area_hectares', 8, 2);
-        $table->integer('response_time_minutes');
-        $table->decimal('latitude', 10, 7);   // YENİ EKLENDİ
-        $table->decimal('longitude', 10, 7);  // YENİ EKLENDİ
+        $table->string('phone')->nullable();
+        $table->decimal('latitude', 10, 7);
+        $table->decimal('longitude', 10, 7);
         $table->timestamps();
     });
 }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('incidents');
+        Schema::dropIfExists('fire_stations');
     }
 };

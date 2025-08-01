@@ -22,66 +22,73 @@
         #alarm-banner { top: 0; }
         body.has-navbar #alarm-banner { top: 3.5rem; }
     </style>
-    @stack('styles') 
+    @stack('styles')
 </head>
 <body class="text-white {{ Auth::check() ? 'has-navbar' : '' }}">
 
     @auth
         {{-- KULLANICI GİRİŞ YAPMIŞSA --}}
-        {{-- DÜZELTME: Navigasyon barına çok yüksek bir z-index değeri (z-[10000]) verildi --}}
         <nav class="bg-gray-900/80 backdrop-blur-md shadow-md py-2 relative z-[10000] h-[3.5rem]">
             <div class="container mx-auto px-4 flex justify-between items-center h-full">
                 
-                @if(Auth::user()->role == 'admin')
-                    {{-- Sadece Admin için link olan logo ve tam menü --}}
-                    <a href="{{ url('/') }}" class="text-orange-500 text-2xl font-bold flex items-center space-x-2">
-                        <i class="fas fa-fire"></i>
-                        <span>TÜRKYAN (Admin)</span>
-                    </a>
-                    <div class="hidden lg:flex items-center space-x-8">
-                        <ul class="flex space-x-6 text-gray-300">
-                            <li><a href="{{ route('index') }}" class="hover:text-orange-500">Ana Sayfa</a></li>
-                            <li><a href="{{ route('harita') }}" class="hover:text-orange-500">Harita</a></li>
-                            <li><a href="{{ route('uyarilar') }}" class="hover:text-orange-500">Uyarılar</a></li>
-                            <li><a href="{{ route('raporlar') }}" class="hover:text-orange-500">Raporlar</a></li>
-                            <li><a href="{{ route('hakkimizda') }}" class="hover:text-orange-500">Hakkımızda</a></li>
-                        </ul>
-                    </div>
-                @else
-                    {{-- Diğer roller için link olmayan logo --}}
-                    <div class="text-orange-500 text-2xl font-bold flex items-center space-x-2">
-                        <i class="fas fa-fire"></i>
-                        <span>TÜRKYAN</span>
-                    </div>
-                @endif
+                {{-- Logo (Her zaman görünür) --}}
+                <div class="text-orange-500 text-2xl font-bold flex items-center space-x-2">
+                    <i class="fas fa-fire"></i>
+                    <span>TÜRKYAN @if(Auth::user()->role == 'admin') (Admin) @endif</span>
+                </div>
 
+                {{-- Orta Kısım Menü Linkleri (Role göre değişir) --}}
+                <div class="hidden lg:flex items-center">
+                    @if(in_array(Auth::user()->role, ['admin', 'itfaiye']))
+                    <ul class="flex space-x-6 text-gray-300">
+                        <li><a href="{{ route('index') }}" class="hover:text-orange-500">Ana Sayfa</a></li>
+                        <li><a href="{{ route('harita') }}" class="hover:text-orange-500">Harita</a></li>
+                        <li><a href="{{ route('uyarilar') }}" class="hover:text-orange-500">Uyarılar</a></li>
+                        <li><a href="{{ route('raporlar') }}" class="hover:text-orange-500">Raporlar</a></li>
+                        @if(Auth::user()->role == 'admin')
+                        <li><a href="{{ route('hakkimizda') }}" class="hover:text-orange-500">Hakkımızda</a></li>
+                        @endif
+                    </ul>
+                    @endif
+                </div>
+                
                 {{-- Sağ taraf kullanıcı menüsü (Tüm giriş yapmış kullanıcılar için ortak) --}}
-                <div class="relative group">
-                    <span class="text-gray-300 font-medium cursor-pointer">{{ Auth::user()->name }}</span>
-                    <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 hidden group-hover:block">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Profil</a>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-400 hover:bg-gray-700">Çıkış Yap</button>
-                        </form>
+                <div class="flex items-center space-x-6">
+                    {{-- YENİ HABERLER MENÜSÜ (Sadece Admin ve Bakanlık için) --}}
+                    @if(in_array(Auth::user()->role, ['admin', 'bakanlik']))
+                    <div class="relative group">
+                        <span class="text-gray-300 font-medium cursor-pointer hover:text-orange-400">Haberler</span>
+                        <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 hidden group-hover:block">
+                            <a href="{{ route('news.create') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Haber Ekle</a>
+                            <a href="{{ route('news.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Haber Görüntüle</a>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="relative group">
+                        <span class="text-gray-300 font-medium cursor-pointer">{{ Auth::user()->name }}</span>
+                        <div class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 hidden group-hover:block">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Profil</a>
+                            <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-400 hover:bg-gray-700">Çıkış Yap</button></form>
+                        </div>
                     </div>
                 </div>
             </div>
         </nav>
     @else
-        {{-- MİSAFİRLER için GİRİŞ/KAYIT BARI --}}
-        <nav class="bg-gray-900 bg-opacity-90 shadow-md py-2 relative z-[10000] h-[3.5rem]">
-             <div class="container mx-auto px-4 flex justify-between items-center h-full">
-                <a href="{{ url('/') }}" class="text-orange-500 text-2xl font-bold flex items-center space-x-2">
-                    <i class="fas fa-fire"></i>
-                    <span>TÜRKYAN</span>
-                </a>
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('login') }}" class="text-gray-300 hover:text-orange-500 font-semibold">Giriş Yap</a>
-                    <a href="{{ route('register') }}" class="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-md">Kayıt Ol</a>
-                </div>
+    {{-- MİSAFİRLER için GİRİŞ/KAYIT BARI (Değişiklik yok) --}}
+    <nav class="bg-gray-900 bg-opacity-90 shadow-md py-2 relative z-[10000] h-[3.5rem]">
+         <div class="container mx-auto px-4 flex justify-between items-center h-full">
+            <a href="{{ url('/') }}" class="text-orange-500 text-2xl font-bold flex items-center space-x-2">
+                <i class="fas fa-fire"></i>
+                <span>TÜRKYAN</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="{{ route('login') }}" class="text-gray-300 hover:text-orange-500 font-semibold">Giriş Yap</a>
+                <a href="{{ route('register') }}" class="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded-md">Kayıt Ol</a>
             </div>
-        </nav>
+        </div>
+    </nav>
     @endauth
 
     {{-- Alarm Banner'ı --}}

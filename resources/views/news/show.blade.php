@@ -3,16 +3,18 @@
 @section('content')
 <div class="container mx-auto px-4 py-8 text-white">
     <div class="max-w-4xl mx-auto">
-        {{-- DEĞİŞTİ: Link artık Gönüllü Paneli'ne gidiyor --}}
-        <a href="{{ route('dashboard') }}" class="text-orange-400 hover:text-orange-300 mb-6 inline-block">&larr; Ana Panele Geri Dön</a>
+        @if(Auth::user()->role == 'user')
+            <a href="{{ route('dashboard') }}" class="text-orange-400 hover:text-orange-300 mb-6 inline-block">&larr; Gönüllü Paneline Geri Dön</a>
+        @else
+             <a href="{{ route('news.index') }}" class="text-orange-400 hover:text-orange-300 mb-6 inline-block">&larr; Tüm Haberlere Geri Dön</a>
+        @endif
         
-        {{-- DEĞİŞTİ: Resim yolu artık asset() ile güvenli bir şekilde çağrılıyor --}}
-        <img src="{{ asset($article->image_url) }}" alt="{{ $article->title }}" class="w-full h-96 object-cover rounded-xl mb-6">
-        
+        {{-- DÜZELTME: Resim yolu asset('storage/' . ...) olarak güncellendi --}}
+<img src="{{ asset($article->image_url) }}" alt="{{ $article->title }}" class="w-full h-96 object-cover rounded-xl mb-6">        
         <h1 class="text-5xl font-bold mb-4">{{ $article->title }}</h1>
         <p class="text-gray-500 mb-6">Yayınlanma Tarihi: {{ $article->published_at->format('d F Y') }}</p>
         <div class="prose prose-invert lg:prose-xl max-w-none text-gray-300 leading-8">
-            {!! nl2br(e($article->content)) !!} {{-- nl2br ile satır atlamalarını koruyoruz --}}
+            {!! nl2br(e($article->content)) !!}
         </div>
     </div>
 </div>

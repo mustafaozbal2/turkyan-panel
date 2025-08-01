@@ -12,7 +12,9 @@ class ReportController extends Controller
     {
         // KPI Kartları için verileri hesapla
         $totalIncidentsLast30Days = Incident::where('created_at', '>=', now()->subDays(30))->count();
-        $avgResponseTime = Incident::avg('response_time_minutes');
+
+        // Eğer hiç olay yoksa, ortalama 0 olarak ayarla
+        $avgResponseTime = Incident::count() > 0 ? Incident::avg('response_time_minutes') : 0;
 
         $mostActiveRegionQuery = Incident::select('location', DB::raw('count(*) as total'))
                             ->groupBy('location')
