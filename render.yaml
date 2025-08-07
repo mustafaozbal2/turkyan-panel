@@ -23,8 +23,7 @@ services:
     name: turkyan-veritabani
     env: mysql
     plan: free # ÜCRETSİZ katmanı kullan
-    mysqlVersion: 8
-    # Ücretsiz veritabanları için disk tanımı zorunludur
+    version: "8"  # <-- DÜZELTİLDİ
     disk:
       name: turkyan-db-disk
       sizeGB: 1
