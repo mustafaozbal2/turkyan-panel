@@ -4,9 +4,17 @@ services:
     name: turkyan-panel
     env: php
     plan: free # ÜCRETSİZ katmanı kullan
+    # Laravel'in public klasörünü ana web dizini olarak ayarla
+    rootDir: public
     buildCommand: |
+      # Standart Laravel kurulum ve build komutları
       composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+      npm install
+      npm run build
       php artisan optimize:clear
+      # Sunucuda yeni bir APP_KEY oluşturulmasını sağla
+      php artisan key:generate --force
+      # Storage linkini oluştur
       php artisan storage:link
     startCommand: php artisan serve --host 0.0.0.0 --port $PORT
 
@@ -15,4 +23,8 @@ services:
     name: turkyan-veritabani
     env: mysql
     plan: free # ÜCRETSİZ katmanı kullan
-    mysqlVersion: 8 # Veya 10.4.32-MariaDB'ye en yakın olanı
+    mysqlVersion: 8
+    # Ücretsiz veritabanları için disk tanımı zorunludur
+    disk:
+      name: turkyan-db-disk
+      sizeGB: 1
