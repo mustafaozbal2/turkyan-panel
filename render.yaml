@@ -2,7 +2,7 @@ services:
   # Laravel Web Servisi
   - type: web
     name: turkyan-panel
-    env: php
+    runtime: php
     plan: free 
     rootDir: public
     buildCommand: |
@@ -17,10 +17,11 @@ services:
   # MariaDB/MySQL Veritabanı
   - type: pserv
     name: turkyan-veritabani
-    env: mysql
+    runtime: mysql
     plan: free 
     # === YAPILAN DEĞİŞİKLİK BURADA ===
-    mysqlVersion: 5.7 
+    # 'mysqlVersion' yerine 'version' kullanılıyor.
+    version: "8"
     disk:
       name: turkyan-db-disk
       sizeGB: 1
