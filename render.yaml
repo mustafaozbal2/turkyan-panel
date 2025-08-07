@@ -1,0 +1,18 @@
+services:
+  # Laravel Web Servisi
+  - type: web
+    name: turkyan-panel
+    env: php
+    plan: free # ÜCRETSİZ katmanı kullan
+    buildCommand: |
+      composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+      php artisan optimize:clear
+      php artisan storage:link
+    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
+
+  # MariaDB/MySQL Veritabanı
+  - type: pserv
+    name: turkyan-veritabani
+    env: mysql
+    plan: free # ÜCRETSİZ katmanı kullan
+    mysqlVersion: 8 # Veya 10.4.32-MariaDB'ye en yakın olanı
