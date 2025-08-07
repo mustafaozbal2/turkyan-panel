@@ -1,26 +1,25 @@
 FROM php:8.2-apache
 
-# Apache'de rewrite modülünü aktif et
+# Apache için rewrite modülünü aktif et
 RUN a2enmod rewrite
 
-# Laravel dosyalarını kopyala
-COPY . /var/www/html/
-
-# public klasörünü Apache root olarak ayarla
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-
-# Apache'yi Laravel için ayarla
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-
-# Gerekli PHP uzantılarını yükle
+# Laravel için gerekli PHP eklentileri
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Composer yükle
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Laravel dosyalarını kopyala
+COPY . /var/www/html
 
-# Laravel için permission
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
+# Apache için doğru root dizin ve izinleri ayarla
+WORKDIR /var/www/html
+
+# Laravel public klasörünü Apache'nin root'u olarak ayarla
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# public klasörüne erişim izni ver
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+
+# .env, storage izinleri vs.
+RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
+CMD ["apache2-foreground"]
