@@ -1,27 +1,22 @@
 services:
-  # Laravel Web Servisi
   - type: web
     name: turkyan-panel
-    runtime: php
-    plan: free 
-    rootDir: public
-    buildCommand: |
-      composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-      npm install
-      npm run build
-      php artisan optimize:clear
-      php artisan key:generate --force
-      php artisan storage:link
-    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
-
-  # MariaDB/MySQL Veritabanı
-  - type: pserv
-    name: turkyan-veritabani
-    runtime: mysql
-    plan: free 
-    # === YAPILAN DEĞİŞİKLİK BURADA ===
-    # 'mysqlVersion' yerine 'version' kullanılıyor.
-    version: "5.7"
-    disk:
-      name: turkyan-db-disk
-      sizeGB: 1
+    env: php
+    plan: free
+    buildCommand: "composer install --no-dev && npm install && npm run build"
+    startCommand: "php artisan serve --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        value: sql.freedb.tech
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        value: freedb_turkyan-panel
+      - key: DB_USERNAME
+        value: freedb_turkyan-user
+      - key: DB_PASSWORD
+        value: 7b%Um$r37WgU&cb
+      - key: NODE_VERSION
+        value: 20
