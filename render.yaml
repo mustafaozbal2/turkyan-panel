@@ -1,16 +1,15 @@
 services:
   - type: web
     name: turkyan-panel
-    env: php
+    env: docker
     plan: free
+    dockerfilePath: Dockerfile
     buildCommand: |
       composer install --no-dev --optimize-autoloader
       npm install
       npm run build
-      php artisan key:generate --force
       php artisan migrate --force
-      php artisan storage:link
-    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
+    startCommand: apache2-foreground
     envVars:
       - key: DB_CONNECTION
         value: mysql
@@ -24,3 +23,5 @@ services:
         value: freedb_turkyan-user
       - key: DB_PASSWORD
         value: 7b%Um$r37WgU&cb
+      - key: NODE_VERSION
+        value: 20
