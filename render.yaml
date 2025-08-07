@@ -3,8 +3,14 @@ services:
     name: turkyan-panel
     env: php
     plan: free
-    buildCommand: "composer install --no-dev && npm install && npm run build"
-    startCommand: "php artisan serve --host 0.0.0.0 --port $PORT"
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      npm install
+      npm run build
+      php artisan key:generate --force
+      php artisan migrate --force
+      php artisan storage:link
+    startCommand: php artisan serve --host 0.0.0.0 --port $PORT
     envVars:
       - key: DB_CONNECTION
         value: mysql
@@ -18,5 +24,3 @@ services:
         value: freedb_turkyan-user
       - key: DB_PASSWORD
         value: 7b%Um$r37WgU&cb
-      - key: NODE_VERSION
-        value: 20
