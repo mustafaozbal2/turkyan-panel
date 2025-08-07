@@ -1,25 +1,40 @@
 FROM php:8.2-apache
 
-# Apache için rewrite modülünü aktif et
+# Apache modları
 RUN a2enmod rewrite
 
-# Laravel için gerekli PHP eklentileri
-RUN docker-php-ext-install pdo pdo_mysql
+# Sistem paketleri ve PHP eklentileri
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    zip \
+    curl \
+    libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql zip
 
-# Laravel dosyalarını kopyala
+# Composer kurulumu
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Projeyi kopyala
 COPY . /var/www/html
 
-# Apache için doğru root dizin ve izinleri ayarla
+# Çalışma dizini
 WORKDIR /var/www/html
 
-# Laravel public klasörünü Apache'nin root'u olarak ayarla
+# Apache'nin root'u Laravel'in public dizini olmalı
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# public klasörüne erişim izni ver
-RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+# Laravel klasör izinleri
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache
 
-# .env, storage izinleri vs.
-RUN chmod -R 775 storage bootstrap/cache
+# Laravel bağımlılıklarını yükle
+RUN composer install --no-dev --optimize-autoloader
 
-EXPOSE 80
+# Laravel config
+RUN php artisan key:generate \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
 CMD ["apache2-foreground"]
