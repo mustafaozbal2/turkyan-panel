@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request; // <-- Bu satırı ekledik
 
 class RegisterController extends Controller
 {
@@ -14,21 +15,15 @@ class RegisterController extends Controller
     |--------------------------------------------------------------------------
     | Register Controller
     |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
     */
 
     use RegistersUsers;
 
     /**
-     * Where to redirect users after registration.
-     *
-     * @var string
+     * DÜZELTME: Kayıt sonrası yönlendirme hedefini kaldırdık çünkü
+     * aşağıdaki fonksiyonla kendi yönlendirmemizi yapacağız.
+     * protected $redirectTo = '/home'; // <-- Bu satır silindi veya yorum yapıldı.
      */
-    protected $redirectTo = '/home';
 
     /**
      * Create a new controller instance.
@@ -67,6 +62,27 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            // Not: Yeni kullanıcıya varsayılan bir rol atamak istersen,
+            // buraya 'role' => 'user' gibi bir satır ekleyebilirsin.
         ]);
+    }
+
+    /**
+     * DÜZELTME: Bu fonksiyonu ekleyerek kayıt sonrası işlemi eziyoruz.
+     * Kullanıcı oluşturulduktan sonra çalışır.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
+     */
+    protected function registered(Request $request, $user)
+    {
+        // Kullanıcının otomatik olarak giriş yapmasını engellemek için oturumu sonlandırıyoruz.
+        $this->guard()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Şimdi kullanıcıyı "başarı" mesajıyla birlikte login sayfasına yönlendiriyoruz.
+        return redirect('/login')->with('success', 'Kaydınız başarıyla oluşturuldu! Şimdi giriş yapabilirsiniz.');
     }
 }

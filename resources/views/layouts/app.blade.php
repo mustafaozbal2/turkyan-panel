@@ -22,7 +22,8 @@
 <body class="text-white antialiased">
 
     {{-- Ana Navigasyon Bloğu --}}
-    <div x-data="{ mobileMenuOpen: false }" class="bg-gray-900/80 backdrop-blur-md shadow-md sticky top-0 z-40">
+    {{-- DÜZELTME 1: z-index değeri z-40'tan z-50'ye yükseltildi. Bu, navbar'ın içeriğin altına kaymasını engeller. --}}
+    <div x-data="{ mobileMenuOpen: false }" class="bg-gray-900/80 backdrop-blur-md shadow-md sticky top-0 z-50">
         <nav class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 {{-- Logo --}}
@@ -34,33 +35,40 @@
                 {{-- MASAÜSTÜ MENÜSÜ --}}
                 <div class="hidden lg:flex items-center space-x-1">
                     @auth
+                        {{-- DÜZELTME 2: 'navigation-links.blade.php' içeriği buraya eklendi --}}
                         @php
-                            $activeClass = 'bg-gray-700 text-white';
-                            $inactiveClass = 'text-gray-300 hover:bg-gray-700 hover:text-white';
-                            $baseClass = 'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200';
+                            $activeClass = 'text-orange-500 font-semibold';
+                            $inactiveClass = 'text-gray-300 hover:text-orange-500';
+                            $baseClass = 'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-300';
                         @endphp
-                        {{-- Linkler buraya gelecek --}}
+                        {{-- Tüm Rollerin Görebileceği Linkler --}}
                         <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? $activeClass : $inactiveClass }} {{ $baseClass }}">Ana Panel</a>
                         <a href="{{ route('uyarilar') }}" class="{{ request()->routeIs('uyarilar') ? $activeClass : $inactiveClass }} {{ $baseClass }}">Uyarılar</a>
+                        <a href="{{ route('news.index') }}" class="{{ request()->routeIs('news.index','news.show') ? $activeClass : $inactiveClass }} {{ $baseClass }}">Haberler</a>
+
+                        {{-- Sadece Admin ve İtfaiye Rollerinin Görebileceği Linkler --}}
                         @if(in_array(Auth::user()->role, ['admin', 'itfaiye']))
                             <a href="{{ route('reports.pending') }}" class="{{ request()->routeIs('reports.pending') ? $activeClass : $inactiveClass }} {{ $baseClass }}">İhbarlar</a>
                             <a href="{{ route('harita') }}" class="{{ request()->routeIs('harita') ? $activeClass : $inactiveClass }} {{ $baseClass }}">Harita</a>
                             <a href="{{ route('raporlar') }}" class="{{ request()->routeIs('raporlar') ? $activeClass : $inactiveClass }} {{ $baseClass }}">Genel Analizler</a>
                         @endif
+
+                        {{-- Sadece Bakanlık ve Admin Rolleri İçin Haber Yönetimi Dropdown'ı --}}
                         @if(in_array(Auth::user()->role, ['admin', 'bakanlik']))
-                            <div x-data="{ open: false }" @click.away="open = false" class="relative">
-                                <button @click="open = !open" class="{{ request()->routeIs('news.*') ? $activeClass : $inactiveClass }} {{ $baseClass }} flex items-center">
+                            <div x-data="{ open: false }" class="relative">
+                                <button @click="open = !open" class="{{ request()->routeIs('news.create','news.edit') ? $activeClass : $inactiveClass }} {{ $baseClass }} flex items-center w-full text-left">
                                     <span>Haber Yönetimi</span>
                                     <i class="fas fa-chevron-down text-xs ml-1"></i>
                                 </button>
-                                <div x-show="open" x-cloak x-transition class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                                <div x-show="open" @click.away="open = false" x-cloak x-transition
+                                     class="lg:absolute lg:left-0 lg:mt-2 w-full lg:w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50">
                                     <a href="{{ route('news.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Haberleri Listele</a>
                                     <a href="{{ route('news.create') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Yeni Haber Ekle</a>
                                 </div>
                             </div>
-                        @else
-                            <a href="{{ route('news.index') }}" class="{{ request()->routeIs('news.index','news.show') ? $activeClass : $inactiveClass }} {{ $baseClass }}">Haberler</a>
                         @endif
+
+                        {{-- Sadece Admin Rolünün Görebileceği Link --}}
                         @if(Auth::user()->role == 'admin')
                             <a href="{{ route('hakkimizda') }}" class="{{ request()->routeIs('hakkimizda') ? $activeClass : $inactiveClass }} {{ $baseClass }}">Hakkımızda</a>
                         @endif
@@ -69,7 +77,7 @@
                 
                 <div class="hidden lg:flex items-center space-x-6">
                      @auth
-                        {{-- DÜZELTME: EKSİK OLAN MESAJLAŞMA İKONU BURAYA EKLENDİ --}}
+                        {{-- Mesajlaşma İkonu --}}
                         @if(!in_array(Auth::user()->role, ['user']))
                             @php
                                 $user = Auth::user();
@@ -91,12 +99,13 @@
                         @endif
 
                         {{-- Kullanıcı Adı ve Çıkış Dropdown'ı --}}
-                        <div x-data="{ open: false }" @click.away="open = false" class="relative">
-                            <button @click="open = !open" class="flex items-center space-x-2 text-gray-300 focus:outline-none px-3 py-2">
+                        <div x-data="{ open: false }" class="relative">
+                            <button @click="open = !open" class="flex items-center space-x-2 text-gray-300 focus:outline-none w-full text-left lg:w-auto px-3 py-2">
                                 <span>{{ Auth::user()->name }}</span>
                                 <i class="fas fa-chevron-down text-xs"></i>
                             </button>
-                            <div x-show="open" x-cloak x-transition class="absolute right-0 mt-2 w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50">
+                            <div x-show="open" @click.away="open = false" x-cloak x-transition
+                                 class="lg:absolute lg:right-0 mt-2 w-full lg:w-48 bg-gray-800 rounded-md shadow-lg py-1 z-50">
                                 <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Profil</a>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
@@ -123,7 +132,54 @@
         <div x-show="mobileMenuOpen" x-cloak @click.away="mobileMenuOpen = false" x-transition class="lg:hidden absolute w-full bg-gray-800 shadow-lg z-30">
             <div class="flex flex-col p-4 space-y-2 text-gray-300">
                 @auth
-                    {{-- mobil menü linkleri --}}
+                    {{-- DÜZELTME 3: Mobil menü linkleri de buraya eklendi --}}
+                    @php
+                        $activeClass = 'text-orange-500 font-semibold';
+                        $inactiveClass = 'text-gray-300 hover:text-orange-500';
+                        $mobileBaseClass = 'block px-3 py-2 rounded-md text-base font-medium';
+                    @endphp
+                    {{-- Tüm Rollerin Görebileceği Linkler --}}
+                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? $activeClass : $inactiveClass }} {{ $mobileBaseClass }}">Ana Panel</a>
+                    <a href="{{ route('uyarilar') }}" class="{{ request()->routeIs('uyarilar') ? $activeClass : $inactiveClass }} {{ $mobileBaseClass }}">Uyarılar</a>
+                    <a href="{{ route('news.index') }}" class="{{ request()->routeIs('news.index','news.show') ? $activeClass : $inactiveClass }} {{ $mobileBaseClass }}">Haberler</a>
+
+                    {{-- Sadece Admin ve İtfaiye Rollerinin Görebileceği Linkler --}}
+                    @if(in_array(Auth::user()->role, ['admin', 'itfaiye']))
+                        <a href="{{ route('reports.pending') }}" class="{{ request()->routeIs('reports.pending') ? $activeClass : $inactiveClass }} {{ $mobileBaseClass }}">İhbarlar</a>
+                        <a href="{{ route('harita') }}" class="{{ request()->routeIs('harita') ? $activeClass : $inactiveClass }} {{ $mobileBaseClass }}">Harita</a>
+                        <a href="{{ route('raporlar') }}" class="{{ request()->routeIs('raporlar') ? $activeClass : $inactiveClass }} {{ $mobileBaseClass }}">Genel Analizler</a>
+                    @endif
+
+                    {{-- Sadece Bakanlık ve Admin Rolleri İçin Haber Yönetimi Dropdown'ı --}}
+                    @if(in_array(Auth::user()->role, ['admin', 'bakanlik']))
+                        <div x-data="{ open: false }" class="relative">
+                            <button @click="open = !open" class="{{ request()->routeIs('news.create','news.edit') ? $activeClass : $inactiveClass }} {{ $mobileBaseClass }} flex items-center w-full text-left">
+                                <span>Haber Yönetimi</span>
+                                <i class="fas fa-chevron-down text-xs ml-1"></i>
+                            </button>
+                            <div x-show="open" @click.away="open = false" x-cloak x-transition
+                                 class="w-full pl-4">
+                                <a href="{{ route('news.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Haberleri Listele</a>
+                                <a href="{{ route('news.create') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Yeni Haber Ekle</a>
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Sadece Admin Rolünün Görebileceği Link --}}
+                    @if(Auth::user()->role == 'admin')
+                        <a href="{{ route('hakkimizda') }}" class="{{ request()->routeIs('hakkimizda') ? $activeClass : $inactiveClass }} {{ $mobileBaseClass }}">Hakkımızda</a>
+                    @endif
+                    
+                    <hr class="border-gray-700 my-2">
+
+                    {{-- Mobil Kullanıcı Menüsü --}}
+                    <div class="font-semibold text-white px-3 py-2">{{ Auth::user()->name }}</div>
+                    <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Profil</a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-400 hover:bg-gray-700 hover:text-white">Çıkış Yap</button>
+                    </form>
+
                 @else
                     <a href="{{ route('login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Giriş Yap</a>
                     <a href="{{ route('register') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Kayıt Ol</a>
