@@ -14,6 +14,13 @@
     <div class="auth-panel rounded-xl shadow-lg p-8">
         <h2 class="text-2xl font-bold text-white text-center mb-6">Giriş Yap</h2>
         
+        {{-- DÜZELTME BURADA: Başarı mesajını göstermek için bu bölüm eklendi --}}
+        @if (session('success'))
+            <div class="bg-green-500/20 border border-green-500 text-green-300 px-4 py-3 rounded-lg relative mb-4 text-center" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
+        
         <form action="{{ route('login') }}" method="POST" class="space-y-4">
             @csrf
             <div>
