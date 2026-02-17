@@ -1,0 +1,15 @@
+services:
+  ai:
+    build: ./ai
+    container_name: fire_ai
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./ai/models:/app/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]   # NVIDIA varsa (Docker Desktop'da GPU paylaşımını aç)
+    environment:
+      - UVICORN_WORKERS=1
