@@ -84,11 +84,10 @@
                                 $bakanlik = \App\Models\User::where('role', 'bakanlik')->first();
                                 $unreadCount = 0;
                                 if ($user && $user->role !== 'bakanlik' && $bakanlik) {
-                                   $unreadCount = \App\Models\Message::where('from_user_id', $bakanlik->id)
-    ->where('to_user_id', $user->id)
-    ->where('is_read', false)
-    ->count();
-
+                                    $unreadCount = \App\Models\Message::where('sender_id', $bakanlik->id)
+                                        ->where('receiver_id', $user->id)
+                                        ->where('is_read', false)
+                                        ->count();
                                 }
                             @endphp
                             <a href="{{ $user->role === 'bakanlik' ? route('chat.index') : route('chat.show', $bakanlik->id ?? 0) }}" class="relative text-gray-300 hover:text-white">
